@@ -1,0 +1,1064 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ASAP Calibrations Tunes Guide</title>
+  <style>
+    :root{
+      --bg:#071521;
+      --panel:#0b2233;
+      --panel2:#0d2a3e;
+      --text:#e8f2ff;
+      --muted:#a7c0d8;
+      --brand:#35c1ff;
+      --brand2:#5fe3ff;
+      --chip:#0f3650;
+      --border:rgba(255,255,255,.08);
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:16px;
+      --radius2:22px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1000px 650px at 70% 15%, rgba(53,193,255,.18), transparent 60%),
+        radial-gradient(900px 550px at 20% 85%, rgba(95,227,255,.12), transparent 55%),
+        linear-gradient(180deg, #04111b, var(--bg));
+      min-height:100vh;
+    }
+
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:18px 16px 56px;
+    }
+
+    header{
+      position:sticky;
+      top:0;
+      z-index:10;
+      backdrop-filter:saturate(1.3) blur(10px);
+      background:linear-gradient(180deg, rgba(4,17,27,.86), rgba(4,17,27,.62));
+      border-bottom:1px solid var(--border);
+    }
+
+    .topbar{
+      max-width:1100px;
+      margin:0 auto;
+      padding:14px 16px;
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:280px;
+    }
+    .logo{
+      width:40px;height:40px;
+      border-radius:12px;
+      background:
+        radial-gradient(16px 16px at 70% 30%, rgba(255,255,255,.35), transparent 60%),
+        linear-gradient(135deg, rgba(53,193,255,.95), rgba(95,227,255,.55));
+      box-shadow:0 10px 25px rgba(53,193,255,.18);
+      border:1px solid rgba(255,255,255,.2);
+    }
+    .brand h1{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.2px;
+      line-height:1.2;
+    }
+    .brand p{
+      margin:2px 0 0;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    /* Search is currently disabled — kept here if you want it later */
+    .search{
+      flex:1;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .search input{
+      width:min(520px, 100%);
+      padding:11px 12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:rgba(11,34,51,.7);
+      color:var(--text);
+      outline:none;
+    }
+    .search input::placeholder{ color:rgba(167,192,216,.65); }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(11,34,51,.55);
+      color:var(--muted);
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;   /* always stacked vertically */
+      gap:16px;
+      margin-top:16px;
+    }
+    @media (max-width: 940px){
+      .grid{ grid-template-columns:1fr; }
+      .brand{ min-width:unset; }
+    }
+
+    .card{
+      background:linear-gradient(180deg, rgba(11,34,51,.9), rgba(10,28,41,.75));
+      border:1px solid var(--border);
+      border-radius:var(--radius2);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:14px 14px 10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      border-bottom:1px solid var(--border);
+      background:linear-gradient(180deg, rgba(13,42,62,.95), rgba(11,34,51,.65));
+    }
+    .card .hd h2{
+      margin:0;
+      font-size:14px;
+      letter-spacing:.2px;
+    }
+    .card .hd .sub{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:4px;
+    }
+    .card .bd{
+      padding:14px;
+    }
+
+    .notice{
+      border-radius:16px;
+      border:1px solid rgba(53,193,255,.25);
+      background:linear-gradient(180deg, rgba(53,193,255,.12), rgba(11,34,51,.45));
+      padding:12px;
+      color:rgba(232,242,255,.92);
+    }
+    .notice b{ color:#fff; }
+    .notice ul{
+      margin:10px 0 0;
+      padding-left:18px;
+      color:rgba(232,242,255,.88);
+    }
+    .notice li{ margin:6px 0; }
+
+    .form{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 560px){
+      .form{ grid-template-columns:1fr; }
+    }
+
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin:0 0 6px;
+    }
+    select, button, .btn{
+      width:100%;
+      padding:11px 12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:rgba(11,34,51,.7);
+      color:var(--text);
+      outline:none;
+      font-size:14px;
+    }
+    button, .btn{
+      cursor:pointer;
+      transition:transform .06s ease, filter .15s ease;
+    }
+    button:active, .btn:active{ transform:scale(.99); }
+    .btnPrimary{
+      background:linear-gradient(135deg, rgba(53,193,255,.95), rgba(95,227,255,.65));
+      border:1px solid rgba(255,255,255,.22);
+      color:#062030;
+      font-weight:700;
+    }
+    .btnGhost{
+      background:rgba(11,34,51,.55);
+      color:var(--text);
+    }
+
+    .results{
+      margin-top:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .setupCard{
+      border:1px solid var(--border);
+      background:linear-gradient(180deg, rgba(13,42,62,.85), rgba(11,34,51,.55));
+      border-radius:18px;
+      padding:12px;
+    }
+    .setupCard .row{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .setupCard h3{
+      margin:0;
+      font-size:14px;
+      letter-spacing:.2px;
+    }
+    .setupCard .meta{
+      margin-top:6px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.35;
+    }
+    .chips{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .chip{
+      background:rgba(15,54,80,.75);
+      border:1px solid rgba(255,255,255,.08);
+      color:rgba(232,242,255,.92);
+      border-radius:999px;
+      padding:6px 9px;
+      font-size:12px;
+    }
+    .chipWarn{
+      border-color: rgba(255, 193, 7, .25);
+      background: rgba(255, 193, 7, .10);
+      color: rgba(255, 236, 186, .95);
+    }
+    .chipOk{
+      border-color: rgba(76, 217, 100, .20);
+      background: rgba(76, 217, 100, .10);
+      color: rgba(214, 255, 221, .95);
+    }
+
+    .smallActions{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+    .smallBtn{
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:rgba(11,34,51,.55);
+      color:var(--text);
+      font-size:12px;
+      cursor:pointer;
+      width:auto;
+    }
+
+    details.accord{
+      border:1px solid var(--border);
+      background:rgba(11,34,51,.55);
+      border-radius:18px;
+      overflow:hidden;
+    }
+    details.accord + details.accord{ margin-top:10px; }
+    details.accord summary{
+      list-style:none;
+      cursor:pointer;
+      padding:12px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background:linear-gradient(180deg, rgba(13,42,62,.75), rgba(11,34,51,.55));
+    }
+    details.accord summary::-webkit-details-marker{ display:none; }
+    .sumLeft{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .sumLeft .t{
+      font-weight:700;
+      font-size:13px;
+      letter-spacing:.2px;
+    }
+    .sumLeft .s{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .chev{
+      width:10px;height:10px;
+      border-right:2px solid rgba(232,242,255,.75);
+      border-bottom:2px solid rgba(232,242,255,.75);
+      transform:rotate(-45deg);
+      transition:transform .15s ease;
+      margin-right:6px;
+    }
+    details[open] .chev{ transform:rotate(45deg); }
+
+    .list{
+      padding:10px 10px 12px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.06);
+      background:rgba(13,42,62,.45);
+    }
+    .item .left{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width: 240px;
+      flex:1;
+    }
+    .item .name{
+      font-size:13px;
+      font-weight:650;
+      letter-spacing:.1px;
+    }
+    .item .desc{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.3;
+    }
+    .tagRow{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .tag{
+      font-size:11px;
+      color:rgba(232,242,255,.9);
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(15,54,80,.55);
+      padding:4px 8px;
+      border-radius:999px;
+    }
+    .tagWarn{
+      border-color: rgba(255, 193, 7, .25);
+      background: rgba(255, 193, 7, .10);
+      color: rgba(255, 236, 186, .95);
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%);
+      background:rgba(10,28,41,.92);
+      border:1px solid var(--border);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      box-shadow:var(--shadow);
+      font-size:13px;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .18s ease, transform .18s ease;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(-2px);
+    }
+
+    footer{
+      margin-top:16px;
+      color:rgba(167,192,216,.75);
+      font-size:12px;
+      text-align:center;
+    }
+    a{ color:var(--brand2); text-decoration:none; }
+    a:hover{ text-decoration:underline; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>ASAP Calibrations Tunes Guide</h1>
+          <p>20–22 6.7L Super Duty • ECM + TCM quick picks + full lists</p>
+        </div>
+      </div>
+
+      <!-- SEARCH DISABLED FOR NOW
+      <div class="search">
+        <input id="search" type="search" placeholder="Search tunes (ex: 135hp, noskip, smokeyy, LBF, DCR/CPX)..." />
+        <span class="pill">Tip: use “DCR/CPX” or “CP4”</span>
+      </div>
+      -->
+      <span class="pill">v0.1 (static)</span>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="grid">
+      <!-- TOP: chooser + recommended -->
+      <section class="card">
+        <div class="hd">
+          <div>
+            <h2>Choose Your Setup</h2>
+            <div class="sub">Answer a few questions and get a few recommended ECM/TCM combos.</div>
+          </div>
+        </div>
+        <div class="bd">
+          <div class="notice">
+            <b>Key notes</b>
+            <ul>
+              <li><b>CP4 (stock fuel):</b> max recommended power level is <b>135hp</b>.</li>
+              <li><b>175hp tunes:</b> <b>DCR/CPX required</b> (aftermarket pump — not CP4).</li>
+              <li><b>SOFT / SOTF:</b> switch on the fly (change power/fueling instantly).</li>
+              <li><b>LBF:</b> Low Boost Fueling (more responsive). <b>Note:</b> EGTs can net higher temps — <b>not recommended for heavy towing</b>.</li>
+              <li><b>Smokeyy:</b> more smoke / coal. <b>Hiss:</b> “jet” sound (turbo veins open). <b>Rumble:</b> deeper idle (turbo veins closed).</li>
+              <li><b>Beta (EGT working):</b> EGT monitoring via <b>EGR Inlet PID</b>. Factory EGT backoff disabled on 20–22; coolant/oil/trans backoffs still exist (oil ~254°F, trans ~260°F).</li>
+            </ul>
+          </div>
+
+          <div style="height:12px"></div>
+
+          <div class="form" id="chooser">
+            <div>
+              <label for="fuel">Fuel system</label>
+              <select id="fuel">
+                <option value="cp4" selected>Stock CP4 (OEM)</option>
+                <option value="dcr">DCR/CPX (aftermarket pump)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="emissions">Emissions</label>
+              <select id="emissions">
+                <option value="no_em" selected>No EM (deleted)</option>
+                <option value="em_on">EM On</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="power">Power goal</label>
+              <select id="power">
+                <option value="0">0hp / near stock</option>
+                <option value="30">30hp</option>
+                <option value="60">60hp</option>
+                <option value="90">90hp</option>
+                <option value="135" selected>135hp</option>
+                <option value="175">175hp</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="towing">Towing use</label>
+              <select id="towing">
+                <option value="none" selected>None</option>
+                <option value="light">Light towing / occasional</option>
+                <option value="heavy">Heavy towing</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="idle">Idle style</label>
+              <select id="idle">
+                <option value="quiet" selected>Quiet / normal</option>
+                <option value="hiss">Hiss</option>
+                <option value="rumble">Rumble</option>
+                <option value="smokeyy">Smokeyy (smoke)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="drive">Drive feel</label>
+              <select id="drive">
+                <option value="normal" selected>Normal</option>
+                <option value="lbf">LBF (more responsive)</option>
+                <option value="soft">SOFT / SOTF (switch on the fly)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="tires">Tire size</label>
+              <select id="tires">
+                <option value="stock" selected>Stock / &lt;35"</option>
+                <option value="35">35"–36"</option>
+                <option value="37">37"+</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="shiftFeel">TCM shift feel</label>
+              <select id="shiftFeel">
+                <option value="med" selected>Medium pressure (nice middle ground)</option>
+                <option value="high">High pressure (firmer, higher power)</option>
+                <option value="stock">Stock pressure (smoothest)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="shiftPoints">Shift points</label>
+              <select id="shiftPoints">
+                <option value="med" selected>Medium shift points</option>
+                <option value="high">High shift points (recommended for 37"+)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+            <button class="btnPrimary" id="btnRecommend">Get recommended setups</button>
+            <button class="btnGhost" id="btnReset" type="button">Reset</button>
+          </div>
+
+          <div class="results" id="results"></div>
+        </div>
+      </section>
+
+      <!-- BOTTOM: collapsed full lists -->
+      <section class="card">
+        <div class="hd">
+          <div>
+            <h2>Browse Full Lists</h2>
+            <div class="sub">Collapsed like the app. Use this as a reference guide.</div>
+          </div>
+        </div>
+
+        <div class="bd">
+          <details class="accord">
+            <summary>
+              <div class="sumLeft">
+                <div class="t">ECM (Engine) — No EM (20–22)</div>
+                <div class="s">0/30/60/90/135/175 • Hiss/Rumble/Smokeyy • LBF • SOFT</div>
+              </div>
+              <div class="chev" aria-hidden="true"></div>
+            </summary>
+            <div class="list" id="ecmNoEmList"></div>
+          </details>
+
+          <details class="accord">
+            <summary>
+              <div class="sumLeft">
+                <div class="t">ECM (Engine) — EM On</div>
+                <div class="s">Emissions on files + beta notes</div>
+              </div>
+              <div class="chev" aria-hidden="true"></div>
+            </summary>
+            <div class="list" id="ecmEmOnList"></div>
+          </details>
+
+          <details class="accord">
+            <summary>
+              <div class="sumLeft">
+                <div class="t">ECM (Engine) — DCR/CPX Required (175hp+)</div>
+                <div class="s">Aftermarket pump required • not CP4</div>
+              </div>
+              <div class="chev" aria-hidden="true"></div>
+            </summary>
+            <div class="list" id="ecmDcrList"></div>
+          </details>
+
+          <details class="accord">
+            <summary>
+              <div class="sumLeft">
+                <div class="t">TCM (Transmission) — Pressure + Shift Strategy</div>
+                <div class="s">High/Medium/Stock • Noskip • 1–3 Noskip • 2nd Gear Start</div>
+              </div>
+              <div class="chev" aria-hidden="true"></div>
+            </summary>
+            <div class="list" id="tcmList"></div>
+          </details>
+
+          <footer>
+            Built as a static guide (not the tune provider). Always verify your exact truck + setup. Use at your own risk.
+          </footer>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Copied.</div>
+
+  <script>
+    // --------- DATA (edit this freely as you collect more exact file names) ---------
+    const ECM_NO_EM = [
+      {
+        title: "0hp Rumble (example)",
+        name: "ASAP 22 V2.0 0HP RUMBLE",
+        tags: ["0hp", "No EM", "Rumble"],
+        desc: "Minor tuning changes to help with power delivery/curve (holds power/torque to redline). Mostly stock ECM file. Rumble idle. CWI (cold weather idle)."
+      },
+
+      { title:"30hp No EM", name:"ASAP 20–22 V2.0 30HP HISS (Factory Idle RPM)", tags:["30hp","No EM","CP4","Hiss"], desc:"Hiss idle. Factory idle RPM variant." },
+      { title:"30hp No EM", name:"ASAP 20–22 V2.0 30HP LBF HISS", tags:["30hp","No EM","CP4","LBF","Hiss"], desc:"More responsive (LBF) + hiss idle." },
+      { title:"30hp No EM", name:"ASAP 20–22 V2.0 30HP HISS", tags:["30hp","No EM","CP4","Hiss"], desc:"Hiss idle (jet sound at idle)." },
+      { title:"30hp No EM", name:"ASAP 20–22 V2.0 30HP LBF RUMBLE", tags:["30hp","No EM","CP4","LBF","Rumble"], desc:"Responsive LBF + rumble idle." },
+      { title:"30hp No EM", name:"ASAP 20–22 V2.0 30HP RUMBLE", tags:["30hp","No EM","CP4","Rumble"], desc:"Rumble idle (veins closed)." },
+
+      { title:"60hp No EM", name:"ASAP 20–22 V2.0 60HP LBF HISS", tags:["60hp","No EM","CP4","LBF","Hiss"], desc:"Responsive LBF + hiss idle." },
+      { title:"60hp No EM", name:"ASAP 20–22 V2.0 60HP HISS", tags:["60hp","No EM","CP4","Hiss"], desc:"Hiss idle." },
+      { title:"60hp No EM", name:"ASAP 20–22 V2.0 60HP RUMBLE", tags:["60hp","No EM","CP4","Rumble"], desc:"Rumble idle." },
+      { title:"60hp No EM", name:"ASAP 20–22 V2.0 60HP LBF RUMBLE", tags:["60hp","No EM","CP4","LBF","Rumble"], desc:"Responsive LBF + rumble idle." },
+
+      { title:"90hp No EM", name:"ASAP 20–22 V2.3 90HP Smokeyy RUMBLE", tags:["90hp","No EM","CP4","Smokeyy","Rumble"], desc:"More smoke + rumble idle." },
+      { title:"90hp No EM", name:"ASAP 20–22 V2.3 90HP Smokeyy HISS", tags:["90hp","No EM","CP4","Smokeyy","Hiss"], desc:"More smoke + hiss idle." },
+      { title:"90hp No EM", name:"ASAP 20–22 V2.0 90HP LBF HISS", tags:["90hp","No EM","CP4","LBF","Hiss"], desc:"Responsive LBF + hiss idle." },
+      { title:"90hp No EM", name:"ASAP 20–22 V2.0 90HP HISS", tags:["90hp","No EM","CP4","Hiss"], desc:"Hiss idle." },
+      { title:"90hp No EM", name:"ASAP 20–22 V2.0 90HP LBF RUMBLE", tags:["90hp","No EM","CP4","LBF","Rumble"], desc:"Responsive LBF + rumble idle." },
+      { title:"90hp No EM", name:"ASAP 20–22 V2.0 90HP RUMBLE", tags:["90hp","No EM","CP4","Rumble"], desc:"Rumble idle." },
+
+      { title:"135hp No EM", name:"ASAP 20–22 V2.3 135HP (CP4) options", tags:["135hp","No EM","CP4"], desc:"135hp is the max recommended level on stock CP4 fueling." },
+
+      { title:"Non-VGT (example list)", name:"ASAP 22 135HP CP4 LBF NON VGT v1.6", tags:["135hp","CP4","No EM","LBF","Non-VGT"], desc:"Non-VGT variant (v1.6 shown). Verify turbo setup." },
+      { title:"Titan Turbo (examples)", name:"ASAP 22 TITAN TURBO CP4 SOFT v1.4 RUMBLE", tags:["CP4","SOFT","Titan","Rumble"], desc:"Titan turbo CP4 SOFT variant (v1.4 shown)." },
+      { title:"Compound (examples)", name:"ASAP 22 SOFT LBF COMPOUND v2.4", tags:["CP4","SOFT","LBF","Compound"], desc:"Compound CP4 SOFT LBF example (v2.4 shown)." }
+    ];
+
+    const ECM_EM_ON = [
+      { title:"EM On", name:"22 Emissions On 0HP v1.0 (Speed Limiter OFF)", tags:["EM On","0hp"], desc:"Emissions on 0hp file. Speed limiter OFF variant." },
+      { title:"EM On", name:"22 Emissions On 0HP v1.0", tags:["EM On","0hp"], desc:"Emissions on 0hp file." },
+      { title:"EM On (Beta)", name:"v5.9 Emissions On BETA", tags:["EM On","Beta"], desc:"Beta emissions-on file." },
+
+      { title:"Beta (EGT Working)", name:"ASAP 20–22 v1.6 60HP Quiet LBF", tags:["Beta","EGT Working","60hp","Quiet","LBF"], desc:"Beta file where EGT monitoring is working (via EGR Inlet PID)." },
+      { title:"Beta (EGT Working)", name:"ASAP 20–22 v1.6 60HP RUMBLE LBF", tags:["Beta","EGT Working","60hp","Rumble","LBF"], desc:"Beta LBF rumble variant." },
+      { title:"Beta (EGT Working)", name:"ASAP 20–22 v1.6 90HP HISS LBF", tags:["Beta","EGT Working","90hp","Hiss","LBF"], desc:"Beta 90hp hiss LBF variant." }
+    ];
+
+    const ECM_DCR_CPX = [
+      { title:"175hp requires DCR/CPX", name:"ASAP 20–22 V2.0 175HP LBF HISS (DCR/CPX)", tags:["175hp","DCR/CPX Required","LBF","Hiss"], desc:"175hp requires aftermarket pump (DCR/CPX). Not CP4." },
+      { title:"175hp requires DCR/CPX", name:"ASAP 20–22 V2.0 175HP RUMBLE (DCR/CPX)", tags:["175hp","DCR/CPX Required","Rumble"], desc:"175hp requires aftermarket pump (DCR/CPX). Not CP4." },
+
+      { title:"RDS (DCR/CPX required folder)", name:"ASAP 22 v2.0 SINGLE RACE LBF RUMBLE RDS (DCR/CPX)", tags:["DCR/CPX Required","RDS","Single Race","LBF","Rumble"], desc:"RDS single race example. DCR/CPX required folder." },
+      { title:"RDS (DCR/CPX required folder)", name:"ASAP 22 v2.0 SINGLE RACE LBF HISS RDS (DCR/CPX)", tags:["DCR/CPX Required","RDS","Single Race","LBF","Hiss"], desc:"RDS single race hiss example. DCR/CPX required folder." },
+
+      { title:"Non-VGT max effort (example)", name:"ASAP 22 175HP v1.5 NON VGT MAX EFFORT LBF (DCR/CPX REQUIRED!)", tags:["175hp","Non-VGT","Max Effort","LBF","DCR/CPX Required"], desc:"Max effort non-VGT example (explicit DCR/CPX required)." }
+    ];
+
+    const TCM = [
+      {
+        title:"High Pressure",
+        name:"High Pressure • NoSkip • High Shift",
+        tags:["TCM","High Pressure","NoSkip","High Shift"],
+        desc:"Firmer shifts. High shift points recommended for 37\"+ tires. NoSkip is fan favorite (doesn’t skip gears)."
+      },
+      {
+        title:"High Pressure",
+        name:"High Pressure • 1–3 NoSkip",
+        tags:["TCM","High Pressure","1–3 NoSkip"],
+        desc:"Skips 2nd gear above ~40% throttle, then no more skipping. Good compromise."
+      },
+      {
+        title:"Medium Pressure",
+        name:"Medium Pressure • NoSkip • Medium Shift",
+        tags:["TCM","Medium Pressure","NoSkip","Medium Shift"],
+        desc:"Slightly firmer than stock; nice middle ground of firm but smooth."
+      },
+      {
+        title:"Stock Pressure",
+        name:"Stock Pressure • Skip strategy",
+        tags:["TCM","Stock Pressure","Skip"],
+        desc:"Smoothest shifting. Some trucks behave differently; pressure preference can vary."
+      },
+      {
+        title:"2nd Gear Start",
+        name:"2nd Gear Start (varies by pressure)",
+        tags:["TCM","2nd Gear Start"],
+        desc:"Truck starts in 2nd gear. More of a special-case feel."
+      }
+    ];
+
+    // --------- UI HELPERS ---------
+    const toastEl = document.getElementById("toast");
+    function toast(msg){
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      setTimeout(()=>toastEl.classList.remove("show"), 1300);
+    }
+
+    function makeTuneItem(t){
+      const el = document.createElement("div");
+      el.className = "item";
+
+      const left = document.createElement("div");
+      left.className = "left";
+
+      const nm = document.createElement("div");
+      nm.className = "name";
+      nm.textContent = t.name;
+
+      const desc = document.createElement("div");
+      desc.className = "desc";
+      desc.textContent = t.desc || "";
+
+      const tagRow = document.createElement("div");
+      tagRow.className = "tagRow";
+      (t.tags || []).forEach(tag=>{
+        const tg = document.createElement("span");
+        tg.className = "tag" + (String(tag).toLowerCase().includes("required") ? " tagWarn" : "");
+        tg.textContent = tag;
+        tagRow.appendChild(tg);
+      });
+
+      left.appendChild(nm);
+      if (t.desc) left.appendChild(desc);
+      left.appendChild(tagRow);
+
+      const right = document.createElement("div");
+      right.className = "smallActions";
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "smallBtn";
+      copyBtn.textContent = "Copy";
+      copyBtn.addEventListener("click", async ()=>{
+        const text = `${t.name}\n${(t.tags||[]).join(" • ")}\n${t.desc||""}`.trim();
+        try{
+          await navigator.clipboard.writeText(text);
+          toast("Copied tune details");
+        }catch{
+          toast("Copy failed (browser permissions)");
+        }
+      });
+      right.appendChild(copyBtn);
+
+      el.appendChild(left);
+      el.appendChild(right);
+      return el;
+    }
+
+    function renderList(listElId, data){
+      const host = document.getElementById(listElId);
+      host.innerHTML = "";
+      data.forEach(t => host.appendChild(makeTuneItem(t)));
+    }
+
+    renderList("ecmNoEmList", ECM_NO_EM);
+    renderList("ecmEmOnList", ECM_EM_ON);
+    renderList("ecmDcrList", ECM_DCR_CPX);
+    renderList("tcmList", TCM);
+
+    // --------- RECOMMENDER ---------
+    function clampPowerForFuel(fuel, power){
+      const p = Number(power);
+      if (fuel === "cp4" && p > 135) return 135;
+      return p;
+    }
+
+    function isHeavyTow(towing){ return towing === "heavy"; }
+
+    function pickEcmOptions({fuel, emissions, power, idle, drive, towing}){
+      const p = clampPowerForFuel(fuel, power);
+
+      // If heavy towing, we don't recommend LBF (even if user selected it)
+      const effectiveDrive = (isHeavyTow(towing) && drive === "lbf") ? "normal" : drive;
+
+      // Choose dataset
+      let pool = [];
+      if (fuel === "dcr") pool = pool.concat(ECM_DCR_CPX, ECM_NO_EM);
+      else pool = pool.concat(ECM_NO_EM);
+
+      if (emissions === "em_on") pool = pool.concat(ECM_EM_ON);
+
+      const want = [];
+      want.push(`${p}hp`);
+      if (emissions === "no_em") want.push("No EM");
+      if (emissions === "em_on") want.push("EM On");
+
+      if (effectiveDrive === "lbf") want.push("LBF");
+      if (effectiveDrive === "soft") want.push("SOFT");
+      if (idle === "hiss") want.push("Hiss");
+      if (idle === "rumble") want.push("Rumble");
+      if (idle === "smokeyy") want.push("Smokeyy");
+      if (idle === "quiet") want.push("Quiet");
+
+      const score = (t)=>{
+        let s = 0;
+        const tags = (t.tags||[]).map(x=>String(x).toLowerCase());
+        const name = (t.name||"").toLowerCase();
+        const desc = (t.desc||"").toLowerCase();
+        const all = `${name} ${tags.join(" ")} ${desc}`;
+
+        for (const w of want){
+          const lw = String(w).toLowerCase();
+          if (tags.some(x=>x.includes(lw))) s += 3;
+          if (name.includes(lw)) s += 2;
+          if (desc.includes(lw)) s += 1;
+        }
+
+        // enforce fuel constraints
+        if (fuel === "cp4" && (all.includes("dcr/cpx required") || all.includes("dcr/cpx"))) s -= 100;
+        if (fuel === "dcr" && Number(power) >= 175 && !all.includes("dcr/cpx")) s -= 2;
+
+        // heavy towing: strongly downrank (or effectively exclude) LBF
+        if (isHeavyTow(towing) && all.includes("lbf")) s -= 100;
+
+        // downrank vague “options” placeholders unless nothing else matches
+        if (name.includes("options")) s -= 2;
+
+        return s;
+      };
+
+      const ranked = pool
+        .map(t=>({t, s:score(t)}))
+        .sort((a,b)=>b.s-a.s);
+
+      // Return top 3 unique-ish (by name)
+      const out = [];
+      const seen = new Set();
+      for (const r of ranked){
+        if (out.length >= 3) break;
+        if (seen.has(r.t.name)) continue;
+        if (r.s < 2) continue;
+        seen.add(r.t.name);
+        out.push(r.t);
+      }
+
+      if (out.length === 0){
+        out.push({
+          name: "Fallback: Start at a lower hp + choose Hiss/Rumble (non-LBF for heavy towing)",
+          tags: ["Guide"],
+          desc: "Not enough matching data entries yet. Add exact file names as you collect them and the recommender will get smarter."
+        });
+      }
+      return out;
+    }
+
+    function pickTcm({shiftFeel, shiftPoints}){
+      const want = [];
+      if (shiftFeel === "high") want.push("High Pressure");
+      if (shiftFeel === "med") want.push("Medium Pressure");
+      if (shiftFeel === "stock") want.push("Stock Pressure");
+
+      want.push(shiftPoints === "high" ? "High Shift" : "Medium Shift");
+      want.push("NoSkip");
+
+      const score = (t)=>{
+        const all = (t.name + " " + (t.tags||[]).join(" ") + " " + (t.desc||"")).toLowerCase();
+        let s = 0;
+        for (const w of want){
+          if (all.includes(w.toLowerCase())) s += 2;
+        }
+        if (all.includes("noskip")) s += 1;
+        return s;
+      };
+
+      const ranked = TCM.map(t=>({t,s:score(t)})).sort((a,b)=>b.s-a.s);
+      return ranked[0]?.t || TCM[0];
+    }
+
+    function makeSetupBlock({fuel, emissions, power, towing, idle, drive, tires, shiftFeel, shiftPoints}){
+      const p = clampPowerForFuel(fuel, power);
+      const warnings = [];
+
+      if (fuel === "cp4" && Number(power) > 135){
+        warnings.push("Power reduced to 135hp because Stock CP4 is max-recommended at 135hp.");
+      }
+      if (Number(power) >= 175 && fuel !== "dcr"){
+        warnings.push("175hp requires DCR/CPX (aftermarket pump). Stock CP4 not recommended.");
+      }
+      if (p === 135 && fuel === "cp4") warnings.push("135hp is the top level for CP4; consider monitoring temps/backoff behavior.");
+
+      // LBF rule: not recommended for heavy towing
+      const effectiveDrive = (towing === "heavy" && drive === "lbf") ? "normal" : drive;
+      if (towing === "heavy" && drive === "lbf"){
+        warnings.push("Heavy towing selected: LBF is not recommended (can net higher EGTs). Recommendations will avoid LBF.");
+      }
+
+      const ecmPicks = pickEcmOptions({fuel, emissions, power:p, idle, drive: effectiveDrive, towing});
+      const tcmPick = pickTcm({shiftFeel, shiftPoints});
+
+      return ecmPicks.map((ecm, idx)=>{
+        const title = `Recommended Setup ${idx+1}`;
+        const chips = [];
+
+        chips.push(fuel === "cp4" ? "Stock CP4" : "DCR/CPX");
+        chips.push(emissions === "em_on" ? "EM On" : "No EM");
+        chips.push(`${p}hp`);
+        chips.push(towing === "heavy" ? "Heavy towing" : towing === "light" ? "Light towing" : "No towing");
+        if (effectiveDrive === "soft") chips.push("SOFT/SOTF");
+        if (effectiveDrive === "lbf") chips.push("LBF");
+        if (idle !== "quiet") chips.push(idle.toUpperCase());
+        chips.push(shiftFeel === "high" ? "High Pressure TCM" : shiftFeel === "stock" ? "Stock Pressure TCM" : "Medium Pressure TCM");
+        chips.push(shiftPoints === "high" ? "High Shift Points" : "Medium Shift Points");
+        chips.push(tires === "37" ? "37+ Tires" : tires === "35" ? "35–36 Tires" : "Stock/<35");
+
+        const warn = [];
+        if (fuel === "cp4" && p === 135) warn.push("CP4 cap: 135hp max");
+        if (fuel !== "cp4" && Number(power) >= 175) warn.push("DCR/CPX required");
+        if (warnings.length) warn.push(...warnings);
+
+        const copyText =
+`ASAP Calibrations Tunes Guide — Recommended Setup ${idx+1}
+
+ECM:
+- ${ecm.name}
+- Tags: ${(ecm.tags||[]).join(" • ")}
+
+TCM:
+- ${tcmPick.name}
+- Tags: ${(tcmPick.tags||[]).join(" • ")}
+
+Notes:
+- Fuel: ${fuel === "cp4" ? "Stock CP4" : "DCR/CPX"}
+- Emissions: ${emissions === "em_on" ? "EM On" : "No EM"}
+- Power: ${p}hp
+- Towing: ${towing}
+- Drive: ${effectiveDrive}
+- Idle: ${idle}
+- Tires: ${tires}
+${warn.length ? "- Warnings: " + warn.join(" | ") : ""}
+`.trim();
+
+        return { title, ecm, tcm: tcmPick, chips, warnings: warn, copyText };
+      });
+    }
+
+    function renderSetups(setups){
+      const host = document.getElementById("results");
+      host.innerHTML = "";
+
+      setups.forEach(s=>{
+        const card = document.createElement("div");
+        card.className = "setupCard";
+
+        const row = document.createElement("div");
+        row.className = "row";
+
+        const left = document.createElement("div");
+        const h = document.createElement("h3");
+        h.textContent = s.title;
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.innerHTML =
+          `<div><b>ECM:</b> ${escapeHtml(s.ecm.name)}</div>
+           <div style="margin-top:6px"><b>TCM:</b> ${escapeHtml(s.tcm.name)}</div>`;
+
+        left.appendChild(h);
+        left.appendChild(meta);
+
+        const actions = document.createElement("div");
+        actions.className = "smallActions";
+
+        const copy = document.createElement("button");
+        copy.className = "smallBtn";
+        copy.textContent = "Copy this setup";
+        copy.addEventListener("click", async ()=>{
+          try{
+            await navigator.clipboard.writeText(s.copyText);
+            toast("Copied setup");
+          }catch{
+            toast("Copy failed (browser permissions)");
+          }
+        });
+
+        actions.appendChild(copy);
+
+        row.appendChild(left);
+        row.appendChild(actions);
+
+        const chips = document.createElement("div");
+        chips.className = "chips";
+        s.chips.forEach(c=>{
+          const chip = document.createElement("span");
+          chip.className = "chip";
+          chip.textContent = c;
+          chips.appendChild(chip);
+        });
+
+        if (s.warnings && s.warnings.length){
+          s.warnings.forEach(w=>{
+            const chip = document.createElement("span");
+            chip.className = "chip chipWarn";
+            chip.textContent = w;
+            chips.appendChild(chip);
+          });
+        }else{
+          const ok = document.createElement("span");
+          ok.className = "chip chipOk";
+          ok.textContent = "No major warnings";
+          chips.appendChild(ok);
+        }
+
+        card.appendChild(row);
+        card.appendChild(chips);
+        host.appendChild(card);
+      });
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    document.getElementById("btnRecommend").addEventListener("click", ()=>{
+      const fuel = document.getElementById("fuel").value;
+      const emissions = document.getElementById("emissions").value;
+      const power = document.getElementById("power").value;
+      const towing = document.getElementById("towing").value;
+      const idle = document.getElementById("idle").value;
+      const drive = document.getElementById("drive").value;
+      const tires = document.getElementById("tires").value;
+      const shiftFeel = document.getElementById("shiftFeel").value;
+      const shiftPoints = document.getElementById("shiftPoints").value;
+
+      const setups = makeSetupBlock({fuel, emissions, power, towing, idle, drive, tires, shiftFeel, shiftPoints});
+      renderSetups(setups);
+      toast("Recommended setups generated");
+    });
+
+    document.getElementById("btnReset").addEventListener("click", ()=>{
+      document.getElementById("fuel").value = "cp4";
+      document.getElementById("emissions").value = "no_em";
+      document.getElementById("power").value = "135";
+      document.getElementById("towing").value = "none";
+      document.getElementById("idle").value = "quiet";
+      document.getElementById("drive").value = "normal";
+      document.getElementById("tires").value = "stock";
+      document.getElementById("shiftFeel").value = "med";
+      document.getElementById("shiftPoints").value = "med";
+      document.getElementById("results").innerHTML = "";
+      toast("Reset");
+    });
+
+    // SEARCH DISABLED FOR NOW
+  </script>
+</body>
+</html>
