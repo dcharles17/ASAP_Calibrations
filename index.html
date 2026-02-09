@@ -615,6 +615,19 @@
   <div class="toast" id="toast">Copied.</div>
 
   <script>
+    // ====== GOOGLE SHEETS (Published CSV URLs) ======
+    const ECM_CSV_URL =
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4w8p-xxWPs2X-KL53IhdqOy8aURE213s3b2sxQ0g1wwxWwenH3KrFwMy4pKc7amxUYW8qCiMjA4pp/pub?gid=731824599&single=true&output=csv";
+
+    const TCM_CSV_URL =
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4w8p-xxWPs2X-KL53IhdqOy8aURE213s3b2sxQ0g1wwxWwenH3KrFwMy4pKc7amxUYW8qCiMjA4pp/pub?gid=1899904436&single=true&output=csv";
+
+    // These replace your hardcoded arrays:
+    let ECM_NO_EM = [];
+    let ECM_EM_ON = [];
+    let ECM_DCR_CPX = [];
+    let TCM = [];
+
     // --------- DATA (edit this freely as you collect more exact file names) ---------
     const ECM_NO_EM = [
       {
@@ -765,10 +778,215 @@
       data.forEach(t => host.appendChild(makeTuneItem(t)));
     }
 
+   (async function init() {
+  try {
+    // quick loading placeholders
+    const loading = `<div class="item"><div class="left"><div class="name">Loading from Google Sheet…</div></div></div>`;
+    document.getElementById("ecmNoEmList").innerHTML = loading;
+    document.getElementById("ecmEmOnList").innerHTML = loading;
+    document.getElementById("ecmDcrList").innerHTML = loading;
+    document.getElementById("tcmList").innerHTML = loading;
+
+    await loadDataFromSheets();
+
     renderList("ecmNoEmList", ECM_NO_EM);
     renderList("ecmEmOnList", ECM_EM_ON);
     renderList("ecmDcrList", ECM_DCR_CPX);
     renderList("tcmList", TCM);
+
+    toast("Loaded tunes from sheet");
+  } catch (e) {
+    console.error(e);
+    const msg = `<div class="item"><div class="left"><div class="name">Failed to load sheet</div><div class="desc">${String(e.message || e)}</div></div></div>`;
+    document.getElementById("ecmNoEmList").innerHTML = msg;
+    document.getElementById("ecmEmOnList").innerHTML = msg;
+    document.getElementById("ecmDcrList").innerHTML = msg;
+    document.getElementById("tcmList").innerHTML = msg;
+  }
+})();
+
+// ---------- CSV helpers ----------
+function parseCSV(csvText) {
+  const rows = [];
+  let row = [];
+  let cur = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < csvText.length; i++) {
+    const c = csvText[i];
+    const n = csvText[i + 1];
+
+    if (c === '"' && inQuotes && n === '"') { cur += '"'; i++; continue; }
+    if (c === '"') { inQuotes = !inQuotes; continue; }
+
+    if (c === "," && !inQuotes) { row.push(cur); cur = ""; continue; }
+
+    if ((c === "\n" || c === "\r") && !inQuotes) {
+      if (c === "\r" && n === "\n") i++;
+      row.push(cur); cur = "";
+      if (row.some(v => String(v).trim() !== "")) rows.push(row);
+      row = [];
+      continue;
+    }
+    cur += c;
+  }
+
+  row.push(cur);
+  if (row.some(v => String(v).trim() !== "")) rows.push(row);
+  return rows;
+}
+
+function normalizeHeader(h) {
+  return String(h || "")
+    .replace(/^\uFEFF/, "")      // remove BOM if present
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "_");       // spaces -> underscores
+}
+
+function mapRowsToObjects(rows) {
+  const headers = rows[0].map(normalizeHeader);
+
+  return rows.slice(1).map(r => {
+    const obj = {};
+    headers.forEach((h, idx) => {
+      obj[h] = (r[idx] ?? "").trim();
+    });
+    return obj;
+  });
+}
+
+
+function toBool(v) {
+  const s = String(v || "").trim().toLowerCase();
+  return s === "true" || s === "yes" || s === "1" || s === "y";
+}
+
+
+function splitList(v) {
+  return String(v || "")
+    .split(",")
+    .map(s => s.trim())
+    .filter(Boolean);
+}
+
+function cap(s) {
+  const t = String(s || "").toLowerCase();
+  return t ? t.charAt(0).toUpperCase() + t.slice(1) : "";
+}
+
+async function fetchSheetCSV(url) {
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to fetch CSV (${res.status})`);
+  return await res.text();
+}
+
+// ---------- Row normalizers ----------
+function normalizeEcmRow(r) {
+  const tags = [];
+
+  const hpLevel = r.hp_level || r.hp || "";
+  if (hpLevel) tags.push(`${hpLevel}hp`);
+
+  const emissions = (r.emissions || "").toUpperCase().replace(/\s+/g, "_");
+  if (emissions.includes("NO")) tags.push("No EM");
+  if (emissions.includes("EM")) tags.push("EM On");
+
+  const fuel = (r.fuel_system || r.fuel || "").toUpperCase();
+  if (fuel) tags.push(r.fuel_system || r.fuel);
+  if (fuel.includes("DCR") || fuel.includes("CPX")) tags.push("DCR/CPX Required");
+
+  const idle = r.idle_style || r.idle || "";
+  if (idle) tags.push(cap(idle));
+
+  splitList(r.drive_features || r.features).forEach(f => tags.push(f));
+
+  const turbo = r.turbo_setup || "";
+  if (turbo && turbo.toUpperCase() !== "STOCK") tags.push(cap(turbo.replaceAll("_", "-")));
+
+  splitList(r.warnings).forEach(w => {
+    const lw = w.toLowerCase();
+    if (lw.includes("dcr")) tags.push("DCR/CPX Required");
+    if (lw.includes("egt")) tags.push("EGT Warning");
+    if (lw.includes("cp4")) tags.push("CP4 135hp max");
+  });
+
+  return {
+    name: r.display_name || r.name || "(missing display_name)",
+    tags,
+    desc: r.notes || r.desc || "",
+    _raw: r
+  };
+}
+
+
+function normalizeTcmRow(r) {
+  // preset_id, display_name, platform, year_start, year_end, engine,
+  // pressure, shift_points, features, notes, active
+
+  const tags = ["TCM"];
+
+  if (r.pressure) tags.push(`${cap(r.pressure)} Pressure`);
+  if (r.shift_points) tags.push(`${cap(r.shift_points)} Shift`);
+
+  splitList(r.features).forEach(f => tags.push(f.replaceAll("_", " ")));
+
+  return {
+    name: r.display_name,
+    tags,
+    desc: r.notes || "",
+    _raw: r
+  };
+}
+
+async function loadDataFromSheets() {
+  const ecmCsv = await fetchSheetCSV(ECM_CSV_URL);
+  const ecmRows = parseCSV(ecmCsv);
+  const ecmAll = mapRowsToObjects(ecmRows);
+
+  // If "active" column exists, filter by it; otherwise keep all rows
+  const hasActive = Object.prototype.hasOwnProperty.call(ecmAll[0] || {}, "active");
+  const ecmObjs = (hasActive ? ecmAll.filter(r => toBool(r.active)) : ecmAll).map(normalizeEcmRow);
+
+  // Bucket using emissions/fuel if present, otherwise fall back to folder text
+  const isNoEm = (t) => {
+    const e = (t._raw.emissions || "").toUpperCase().replace(/\s+/g, "_");
+    const f = (t._raw.fuel_system || "").toUpperCase();
+    const folder = (t._raw.folder || "").toLowerCase();
+    return (e.includes("NO") || folder.includes("no em")) && (f.includes("CP4") || folder.includes("cp4"));
+  };
+
+  const isEmOn = (t) => {
+    const e = (t._raw.emissions || "").toUpperCase();
+    const folder = (t._raw.folder || "").toLowerCase();
+    return e.includes("EM") || folder.includes("em on");
+  };
+
+  const isDcr = (t) => {
+    const f = (t._raw.fuel_system || "").toUpperCase();
+    const w = (t._raw.warnings || "").toLowerCase();
+    const folder = (t._raw.folder || "").toLowerCase();
+    return f.includes("DCR") || f.includes("CPX") || w.includes("dcr") || folder.includes("dcr");
+  };
+
+  ECM_NO_EM = ecmObjs.filter(isNoEm);
+  ECM_EM_ON = ecmObjs.filter(isEmOn);
+  ECM_DCR_CPX = ecmObjs.filter(isDcr);
+
+  // Fallback: if bucket filters produce nothing, show everything in NO_EM so the UI isn't empty
+  if (ECM_NO_EM.length === 0 && ECM_EM_ON.length === 0 && ECM_DCR_CPX.length === 0) {
+    ECM_NO_EM = ecmObjs;
+  }
+
+  // ---- TCM ----
+  const tcmCsv = await fetchSheetCSV(TCM_CSV_URL);
+  const tcmRows = parseCSV(tcmCsv);
+  const tcmAll = mapRowsToObjects(tcmRows);
+
+  const tcmHasActive = Object.prototype.hasOwnProperty.call(tcmAll[0] || {}, "active");
+  TCM = (tcmHasActive ? tcmAll.filter(r => toBool(r.active)) : tcmAll).map(normalizeTcmRow);
+}
+
 
     // --------- RECOMMENDER ---------
     function clampPowerForFuel(fuel, power){
