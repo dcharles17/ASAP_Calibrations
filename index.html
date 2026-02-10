@@ -948,30 +948,47 @@ async function loadDataFromSheets() {
   const hasActive = Object.prototype.hasOwnProperty.call(ecmAll[0] || {}, "active");
   const ecmObjs = (hasActive ? ecmAll.filter(r => toBool(r.active)) : ecmAll).map(normalizeEcmRow);
 
-  // Bucket using emissions/fuel if present, otherwise fall back to folder text
-  const isNoEm = (t) => {
-    const e = (t._raw.emissions || "").toUpperCase().replace(/\s+/g, "_");
-    const f = (t._raw.fuel_system || "").toUpperCase();
-    const folder = (t._raw.folder || "").toLowerCase();
-    return (e.includes("NO") || folder.includes("no em")) && (f.includes("CP4") || folder.includes("cp4"));
+    // ---- ECM bucketing (3 folders, MUTUALLY EXCLUSIVE) ----
+  const emissionsOf = (t) => String(t._raw.emissions || "").trim().toUpperCase();
+  const fuelOf = (t) => String(t._raw.fuel_system || "").trim().toUpperCase();
+  const folderOf = (t) => String(t._raw.folder || "").trim().toLowerCase();
+  const warningsOf = (t) => String(t._raw.warnings || "").trim().toUpperCase();
+
+  const isDcr = (t) =>
+    fuelOf(t).includes("DCR") ||
+    fuelOf(t).includes("CPX") ||
+    folderOf(t).includes("dcr") ||
+    warningsOf(t).includes("DCR_CPX_REQUIRED");
+
+  const isEmOn = (t) => emissionsOf(t) === "EM_ON" || folderOf(t).includes("em on");
+
+  // NO_EM + CP4 bucket, with your rule:
+  // if fuel_system is blank AND emissions is NO_EM -> treat as CP4
+  const isNoEmCp4 = (t) => {
+    const e = emissionsOf(t);
+    const f = fuelOf(t);
+    const folder = folderOf(t);
+    return (
+      (e === "NO_EM" || folder.includes("no em")) &&
+      (f === "" || f.includes("CP4") || folder.includes("cp4"))
+    );
   };
 
-  const isEmOn = (t) => {
-    const e = (t._raw.emissions || "").toUpperCase();
-    const folder = (t._raw.folder || "").toLowerCase();
-    return e.includes("EM") || folder.includes("em on");
-  };
-
-  const isDcr = (t) => {
-    const f = (t._raw.fuel_system || "").toUpperCase();
-    const w = (t._raw.warnings || "").toLowerCase();
-    const folder = (t._raw.folder || "").toLowerCase();
-    return f.includes("DCR") || f.includes("CPX") || w.includes("dcr") || folder.includes("dcr");
-  };
-
-  ECM_NO_EM = ecmObjs.filter(isNoEm);
-  ECM_EM_ON = ecmObjs.filter(isEmOn);
+  // 1) DCR/CPX first
   ECM_DCR_CPX = ecmObjs.filter(isDcr);
+  const dcrIds = new Set(ECM_DCR_CPX.map(x => x._raw.id || x.name));
+
+  // 2) EM_ON second, excluding DCR
+  ECM_EM_ON = ecmObjs.filter(t => isEmOn(t) && !dcrIds.has(t._raw.id || t.name));
+  const emIds = new Set(ECM_EM_ON.map(x => x._raw.id || x.name));
+
+  // 3) NO_EM + CP4 last, excluding DCR + EM_ON
+  ECM_NO_EM = ecmObjs.filter(t =>
+    isNoEmCp4(t) &&
+    !dcrIds.has(t._raw.id || t.name) &&
+    !emIds.has(t._raw.id || t.name)
+  );
+
 
   // Fallback: if bucket filters produce nothing, show everything in NO_EM so the UI isn't empty
   if (ECM_NO_EM.length === 0 && ECM_EM_ON.length === 0 && ECM_DCR_CPX.length === 0) {
