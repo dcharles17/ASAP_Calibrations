@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ASAP Admin</title>
+  <style>
+    :root{
+      --bg:#071521;
+      --panel:#0b2233;
+      --panel2:#0d2a3e;
+      --text:#e8f2ff;
+      --muted:#a7c0d8;
+      --brand:#35c1ff;
+      --brand2:#5fe3ff;
+      --chip:#0f3650;
+      --border:rgba(255,255,255,.08);
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:12px;
+      --danger:#ff5c5c;
+      --success:#4cff8e;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    *{ box-sizing:border-box; margin:0; }
+    body{
+      font-family:var(--sans);
+      color:var(--text);
+      background:linear-gradient(180deg, #04111b, var(--bg));
+      min-height:100vh;
+    }
+
+    /* --- Layout --- */
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 20px;
+      background:rgba(4,17,27,.9);
+      border-bottom:1px solid var(--border);
+    }
+    .topbar h1{ font-size:18px; font-weight:700; }
+    .topbar .back{ color:var(--brand); text-decoration:none; font-size:14px; }
+
+    .container{ max-width:1400px; margin:0 auto; padding:20px; }
+
+    /* --- Login --- */
+    #loginSection{
+      max-width:400px; margin:80px auto; padding:32px;
+      background:var(--panel); border-radius:var(--radius); border:1px solid var(--border);
+    }
+    #loginSection h2{ margin-bottom:16px; font-size:20px; }
+    #loginSection input{
+      width:100%; padding:10px 14px; border-radius:8px;
+      border:1px solid var(--border); background:var(--panel2);
+      color:var(--text); font-size:15px; margin-bottom:12px;
+    }
+    #loginSection input:focus{ outline:2px solid var(--brand); }
+    #loginError{ color:var(--danger); font-size:13px; margin-bottom:8px; display:none; }
+
+    /* --- Buttons --- */
+    .btn{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:8px 16px; border-radius:8px; border:none;
+      font-size:13px; font-weight:600; cursor:pointer; transition:.15s;
+    }
+    .btn-primary{ background:var(--brand); color:#000; }
+    .btn-primary:hover{ background:var(--brand2); }
+    .btn-ghost{ background:transparent; color:var(--brand); border:1px solid var(--brand); }
+    .btn-ghost:hover{ background:rgba(53,193,255,.1); }
+    .btn-danger{ background:var(--danger); color:#000; }
+    .btn-danger:hover{ opacity:.85; }
+    .btn-sm{ padding:5px 10px; font-size:12px; }
+    .btn:disabled{ opacity:.4; cursor:not-allowed; }
+
+    /* --- Admin layout --- */
+    #adminSection{ display:none; }
+    .admin-grid{
+      display:grid; grid-template-columns:280px 1fr; gap:20px; min-height:calc(100vh - 80px);
+    }
+    @media(max-width:800px){
+      .admin-grid{ grid-template-columns:1fr; }
+    }
+
+    /* --- Sidebar --- */
+    .sidebar{
+      background:var(--panel); border-radius:var(--radius); border:1px solid var(--border);
+      padding:16px; height:fit-content; position:sticky; top:70px;
+    }
+    .sidebar h3{ font-size:14px; color:var(--muted); margin-bottom:12px; text-transform:uppercase; letter-spacing:.5px; }
+    .col-list{ list-style:none; padding:0; display:flex; flex-direction:column; gap:4px; }
+    .col-item{
+      padding:10px 12px; border-radius:8px; cursor:pointer;
+      display:flex; align-items:center; justify-content:space-between;
+      transition:.15s; font-size:14px;
+    }
+    .col-item:hover{ background:var(--panel2); }
+    .col-item.active{ background:var(--brand); color:#000; font-weight:600; }
+    .col-item .badge{
+      font-size:10px; padding:2px 6px; border-radius:4px;
+      background:var(--chip); color:var(--muted); text-transform:uppercase; font-weight:700;
+    }
+    .col-item.active .badge{ background:rgba(0,0,0,.2); color:#000; }
+
+    /* --- Main panel --- */
+    .main-panel{
+      background:var(--panel); border-radius:var(--radius); border:1px solid var(--border);
+      padding:20px; min-height:400px;
+    }
+    .panel-header{
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:16px; flex-wrap:wrap; gap:10px;
+    }
+    .panel-header h2{ font-size:18px; }
+    .toolbar{ display:flex; gap:8px; flex-wrap:wrap; }
+
+    /* --- Import section --- */
+    .import-section{
+      background:var(--panel2); border-radius:8px; padding:16px; margin-bottom:16px;
+      border:1px solid var(--border);
+    }
+    .import-section h4{ font-size:13px; color:var(--muted); margin-bottom:10px; text-transform:uppercase; }
+    .import-row{ display:flex; gap:8px; margin-bottom:10px; align-items:center; flex-wrap:wrap; }
+    .import-row input[type="text"]{
+      flex:1; min-width:200px; padding:8px 12px; border-radius:6px;
+      border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:13px;
+    }
+    .import-row input[type="text"]:focus{ outline:2px solid var(--brand); }
+    .import-row input[type="file"]{ font-size:13px; color:var(--muted); }
+    .import-divider{ color:var(--muted); font-size:12px; margin-bottom:10px; }
+
+    /* --- Table --- */
+    .table-wrap{
+      overflow-x:auto; overflow-y:auto; max-height:65vh;
+      border:1px solid var(--border); border-radius:8px;
+    }
+    table{ width:100%; border-collapse:collapse; font-size:13px; }
+    thead{ position:sticky; top:0; z-index:2; }
+    th{
+      background:var(--panel2); padding:8px 10px; text-align:left;
+      font-weight:600; font-size:12px; color:var(--muted);
+      border-bottom:2px solid var(--border); white-space:nowrap;
+      text-transform:uppercase; letter-spacing:.3px;
+    }
+    td{
+      padding:6px 10px; border-bottom:1px solid var(--border);
+      min-width:80px; max-width:300px; word-break:break-word;
+    }
+    td[contenteditable="true"]:focus{
+      outline:2px solid var(--brand); background:rgba(53,193,255,.06);
+      border-radius:2px;
+    }
+    td[contenteditable="true"]:empty::before{
+      content:attr(data-placeholder); color:rgba(167,192,216,.3);
+    }
+    tr:hover td{ background:rgba(53,193,255,.03); }
+    .del-cell{ text-align:center; width:40px; }
+    .del-cell input{ cursor:pointer; width:16px; height:16px; }
+
+    /* --- Modal --- */
+    .modal-overlay{
+      position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:100;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .modal{
+      background:var(--panel); border:1px solid var(--border); border-radius:var(--radius);
+      padding:24px; min-width:360px; max-width:90vw;
+    }
+    .modal h3{ margin-bottom:16px; }
+    .modal label{ display:block; font-size:13px; color:var(--muted); margin-bottom:4px; margin-top:12px; }
+    .modal input, .modal select{
+      width:100%; padding:8px 12px; border-radius:6px;
+      border:1px solid var(--border); background:var(--panel2);
+      color:var(--text); font-size:14px;
+    }
+    .modal input:focus, .modal select:focus{ outline:2px solid var(--brand); }
+    .modal-actions{ display:flex; gap:8px; margin-top:20px; justify-content:flex-end; }
+
+    /* --- Toast --- */
+    .toast{
+      position:fixed; bottom:20px; right:20px; padding:12px 20px;
+      border-radius:8px; font-size:14px; font-weight:600; z-index:200;
+      transform:translateY(100px); opacity:0; transition:.3s;
+    }
+    .toast.show{ transform:translateY(0); opacity:1; }
+    .toast-success{ background:var(--success); color:#000; }
+    .toast-error{ background:var(--danger); color:#000; }
+
+    /* --- Empty state --- */
+    .empty-state{
+      text-align:center; padding:60px 20px; color:var(--muted);
+    }
+    .empty-state h3{ font-size:16px; margin-bottom:8px; color:var(--text); }
+    .empty-state p{ font-size:14px; }
+
+    /* --- Status --- */
+    .saving-indicator{
+      display:inline-flex; align-items:center; gap:6px;
+      font-size:13px; color:var(--brand); font-weight:600;
+    }
+    .spinner{
+      width:14px; height:14px; border:2px solid var(--border);
+      border-top-color:var(--brand); border-radius:50%;
+      animation:spin .6s linear infinite;
+    }
+    @keyframes spin{ to{ transform:rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>ASAP Admin</h1>
+  <a class="back" href="/">← Back to site</a>
+</div>
+
+<!-- LOGIN -->
+<div id="loginSection">
+  <h2>Admin Login</h2>
+  <div id="loginError">Incorrect password</div>
+  <input type="password" id="pwInput" placeholder="Enter admin password" autocomplete="current-password" />
+  <button class="btn btn-primary" style="width:100%" id="btnLogin">Login</button>
+</div>
+
+<!-- ADMIN -->
+<div id="adminSection">
+  <div class="container">
+    <div class="admin-grid">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <h3>Collections</h3>
+        <ul class="col-list" id="colList"></ul>
+        <div style="margin-top:12px">
+          <button class="btn btn-ghost btn-sm" style="width:100%" id="btnAddCol">+ Add Collection</button>
+        </div>
+        <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border);">
+          <button class="btn btn-primary btn-sm" style="width:100%" id="btnSaveAll">Save All</button>
+          <button class="btn btn-ghost btn-sm" style="width:100%; margin-top:6px;" id="btnDownload">Download JSON</button>
+          <button class="btn btn-ghost btn-sm" style="width:100%; margin-top:6px;" id="btnLogout">Logout</button>
+        </div>
+      </div>
+
+      <!-- Main editor -->
+      <div class="main-panel" id="mainPanel">
+        <div class="empty-state" id="emptyState">
+          <h3>Select or create a collection</h3>
+          <p>Use the sidebar to pick a collection to edit, or add a new one.</p>
+        </div>
+        <div id="editorArea" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+//  STATE
+// ============================================================
+let AUTH_TOKEN = "";
+let collections = [];       // [{id, name, type, description}]
+let data = {};              // { "col-id": [{...row}, ...] }
+let activeColId = null;
+let dirty = false;
+
+const ECM_COLUMNS = [
+  "display_name","hp_level","emissions","fuel_system","folder",
+  "idle_style","drive_features","turbo_setup","warnings","notes","active"
+];
+const TCM_COLUMNS = [
+  "display_name","platform","year_start","year_end","engine",
+  "pressure","shift_points","features","notes","active"
+];
+
+// ============================================================
+//  AUTH
+// ============================================================
+document.getElementById("btnLogin").onclick = doLogin;
+document.getElementById("pwInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") doLogin();
+});
+
+async function verifyPassword(pw) {
+  const res = await fetch("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password: pw }),
+  });
+  if (!res.ok) throw new Error("Invalid password");
+}
+
+async function doLogin() {
+  const pw = document.getElementById("pwInput").value.trim();
+  if (!pw) return;
+
+  try {
+    await verifyPassword(pw);
+    AUTH_TOKEN = pw;
+    sessionStorage.setItem("asap_admin_pw", pw);
+    await loadData();
+    document.getElementById("loginSection").style.display = "none";
+    document.getElementById("adminSection").style.display = "block";
+    renderSidebar();
+    toast("Logged in", "success");
+  } catch (err) {
+    AUTH_TOKEN = "";
+    sessionStorage.removeItem("asap_admin_pw");
+    document.getElementById("loginError").style.display = "block";
+  }
+}
+
+// Auto-login from session
+(function autoLogin() {
+  const saved = sessionStorage.getItem("asap_admin_pw");
+  if (saved) {
+    verifyPassword(saved).then(() => {
+      AUTH_TOKEN = saved;
+      return loadData();
+    }).then(() => {
+      document.getElementById("loginSection").style.display = "none";
+      document.getElementById("adminSection").style.display = "block";
+      renderSidebar();
+    }).catch(() => {
+      sessionStorage.removeItem("asap_admin_pw");
+    });
+  }
+})();
+
+// ============================================================
+//  API
+// ============================================================
+async function loadData() {
+  const res = await fetch("/api/tunes");
+  if (!res.ok) throw new Error("Failed to load data");
+  const json = await res.json();
+  collections = json.collections || [];
+  data = json.data || {};
+  dirty = false;
+}
+
+async function saveData() {
+  // Collect current editor state before saving
+  syncEditorToData();
+
+  const res = await fetch("/api/tunes", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${AUTH_TOKEN}`,
+    },
+    body: JSON.stringify({ collections, data }),
+  });
+
+  if (res.status === 401) {
+    toast("Unauthorized — wrong password", "error");
+    throw new Error("Unauthorized");
+  }
+  if (!res.ok) {
+    toast("Save failed", "error");
+    throw new Error("Save failed");
+  }
+  dirty = false;
+}
+
+// ============================================================
+//  SIDEBAR
+// ============================================================
+function renderSidebar() {
+  const list = document.getElementById("colList");
+  list.innerHTML = "";
+
+  collections.forEach(col => {
+    const li = document.createElement("li");
+    li.className = "col-item" + (col.id === activeColId ? " active" : "");
+    li.innerHTML = `
+      <span>${esc(col.name)}</span>
+      <span class="badge">${esc(col.type)}</span>
+    `;
+    li.onclick = () => selectCollection(col.id);
+    list.appendChild(li);
+  });
+}
+
+function selectCollection(id) {
+  // Sync current editor before switching
+  if (activeColId) syncEditorToData();
+  activeColId = id;
+  renderSidebar();
+  renderEditor();
+}
+
+// ============================================================
+//  EDITOR
+// ============================================================
+function renderEditor() {
+  const col = collections.find(c => c.id === activeColId);
+  if (!col) {
+    document.getElementById("emptyState").style.display = "";
+    document.getElementById("editorArea").style.display = "none";
+    return;
+  }
+
+  document.getElementById("emptyState").style.display = "none";
+  const area = document.getElementById("editorArea");
+  area.style.display = "block";
+
+  const rows = data[col.id] || [];
+  const columns = col.type === "tcm" ? TCM_COLUMNS : ECM_COLUMNS;
+
+  area.innerHTML = `
+    <div class="panel-header">
+      <div>
+        <h2>${esc(col.name)}</h2>
+        <span style="font-size:13px;color:var(--muted)">${esc(col.description || "")} · ${rows.length} rows</span>
+      </div>
+      <div class="toolbar">
+        <button class="btn btn-danger btn-sm" id="btnDeleteCol">Delete Collection</button>
+      </div>
+    </div>
+
+    <div class="import-section">
+      <h4>Import Data</h4>
+      <div class="import-row">
+        <input type="text" id="importUrl" placeholder="Paste published Google Sheets CSV URL..." />
+        <button class="btn btn-ghost btn-sm" id="btnImportUrl">Import URL</button>
+      </div>
+      <div class="import-divider">— or —</div>
+      <div class="import-row">
+        <input type="file" id="importFile" accept=".csv" />
+        <button class="btn btn-ghost btn-sm" id="btnImportFile">Import File</button>
+      </div>
+    </div>
+
+    <div class="toolbar" style="margin-bottom:12px;">
+      <button class="btn btn-ghost btn-sm" id="btnAddRow">+ Add Row</button>
+      <button class="btn btn-danger btn-sm" id="btnDeleteRows">Delete Selected</button>
+    </div>
+
+    <div class="table-wrap" id="tableWrap"></div>
+  `;
+
+  buildTable(columns, rows);
+
+  // Wire up buttons
+  document.getElementById("btnDeleteCol").onclick = () => deleteCollection(col.id);
+  document.getElementById("btnImportUrl").onclick = () => importFromUrl(col);
+  document.getElementById("btnImportFile").onclick = () => importFromFile(col);
+  document.getElementById("btnAddRow").onclick = () => addRow(columns);
+  document.getElementById("btnDeleteRows").onclick = deleteSelectedRows;
+}
+
+function buildTable(columns, rows) {
+  const wrap = document.getElementById("tableWrap");
+  const table = document.createElement("table");
+
+  // Header
+  const thead = document.createElement("thead");
+  const hr = document.createElement("tr");
+  const thDel = document.createElement("th");
+  thDel.textContent = "✕";
+  thDel.className = "del-cell";
+  hr.appendChild(thDel);
+
+  columns.forEach(col => {
+    const th = document.createElement("th");
+    th.textContent = col.replace(/_/g, " ");
+    hr.appendChild(th);
+  });
+  thead.appendChild(hr);
+  table.appendChild(thead);
+
+  // Body
+  const tbody = document.createElement("tbody");
+  tbody.id = "tableBody";
+  rows.forEach(row => {
+    tbody.appendChild(makeRow(columns, row));
+  });
+  table.appendChild(tbody);
+
+  wrap.innerHTML = "";
+  wrap.appendChild(table);
+}
+
+function makeRow(columns, rowData) {
+  const tr = document.createElement("tr");
+
+  // Delete checkbox
+  const tdDel = document.createElement("td");
+  tdDel.className = "del-cell";
+  const cb = document.createElement("input");
+  cb.type = "checkbox";
+  cb.className = "row-del";
+  tdDel.appendChild(cb);
+  tr.appendChild(tdDel);
+
+  columns.forEach(col => {
+    const td = document.createElement("td");
+    td.dataset.key = col;
+
+    if (col === "active") {
+      const check = document.createElement("input");
+      check.type = "checkbox";
+      check.checked = toBool(rowData[col]);
+      check.onchange = () => { dirty = true; };
+      td.appendChild(check);
+    } else {
+      td.contentEditable = "true";
+      td.textContent = rowData[col] || "";
+      td.dataset.placeholder = col.replace(/_/g, " ");
+      td.oninput = () => { dirty = true; };
+    }
+    tr.appendChild(td);
+  });
+
+  return tr;
+}
+
+function addRow(columns) {
+  const tbody = document.getElementById("tableBody");
+  if (!tbody) return;
+  const emptyRow = {};
+  columns.forEach(c => emptyRow[c] = "");
+  emptyRow.active = "true";
+  tbody.appendChild(makeRow(columns, emptyRow));
+  dirty = true;
+  // Scroll to bottom
+  const wrap = document.getElementById("tableWrap");
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function deleteSelectedRows() {
+  const checks = document.querySelectorAll("#tableBody .row-del:checked");
+  if (checks.length === 0) return toast("No rows selected", "error");
+  if (!confirm(`Delete ${checks.length} row(s)?`)) return;
+  checks.forEach(cb => cb.closest("tr").remove());
+  dirty = true;
+  toast(`Deleted ${checks.length} row(s)`, "success");
+}
+
+function syncEditorToData() {
+  if (!activeColId) return;
+  const col = collections.find(c => c.id === activeColId);
+  if (!col) return;
+
+  const tbody = document.getElementById("tableBody");
+  if (!tbody) return;
+
+  const columns = col.type === "tcm" ? TCM_COLUMNS : ECM_COLUMNS;
+  const rows = [];
+
+  tbody.querySelectorAll("tr").forEach(tr => {
+    const obj = {};
+    columns.forEach(colName => {
+      const td = tr.querySelector(`td[data-key="${colName}"]`);
+      if (!td) return;
+      if (colName === "active") {
+        obj[colName] = td.querySelector("input").checked ? "true" : "false";
+      } else {
+        obj[colName] = td.textContent.trim();
+      }
+    });
+    rows.push(obj);
+  });
+
+  data[col.id] = rows;
+}
+
+// ============================================================
+//  COLLECTION MANAGEMENT
+// ============================================================
+document.getElementById("btnAddCol").onclick = showAddModal;
+
+function showAddModal() {
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3>New Collection</h3>
+      <label>Name</label>
+      <input id="modalName" placeholder="e.g. ECM 20-22" />
+      <label>Type</label>
+      <select id="modalType">
+        <option value="ecm">ECM</option>
+        <option value="tcm">TCM</option>
+      </select>
+      <label>Description (optional)</label>
+      <input id="modalDesc" placeholder="e.g. 20-22 6.7L ECM Tunes" />
+      <div class="modal-actions">
+        <button class="btn btn-ghost btn-sm" id="modalCancel">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="modalCreate">Create</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  overlay.querySelector("#modalCancel").onclick = () => overlay.remove();
+  overlay.querySelector("#modalCreate").onclick = () => {
+    const name = overlay.querySelector("#modalName").value.trim();
+    const type = overlay.querySelector("#modalType").value;
+    const desc = overlay.querySelector("#modalDesc").value.trim();
+    if (!name) return toast("Name is required", "error");
+
+    const id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    if (collections.some(c => c.id === id)) return toast("Collection with that name already exists", "error");
+
+    collections.push({ id, name, type, description: desc });
+    data[id] = [];
+    dirty = true;
+    overlay.remove();
+    renderSidebar();
+    selectCollection(id);
+    toast(`Created "${name}"`, "success");
+  };
+}
+
+function deleteCollection(id) {
+  const col = collections.find(c => c.id === id);
+  if (!col) return;
+  if (!confirm(`Delete "${col.name}" and all its data? This cannot be undone after saving.`)) return;
+
+  collections = collections.filter(c => c.id !== id);
+  delete data[id];
+  dirty = true;
+
+  if (activeColId === id) {
+    activeColId = null;
+    document.getElementById("editorArea").style.display = "none";
+    document.getElementById("emptyState").style.display = "";
+  }
+  renderSidebar();
+  toast(`Deleted "${col.name}"`, "success");
+}
+
+// ============================================================
+//  IMPORT
+// ============================================================
+async function importFromUrl(col) {
+  const url = document.getElementById("importUrl").value.trim();
+  if (!url) return toast("Paste a CSV URL first", "error");
+
+  try {
+    toast("Fetching CSV...", "success");
+    // Proxy through server to avoid CORS issues
+    const res = await fetch("/api/proxy-csv", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${AUTH_TOKEN}`,
+      },
+      body: JSON.stringify({ url }),
+    });
+
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+
+    applyImport(col, json.csv);
+  } catch (err) {
+    toast("Failed to fetch URL: " + err.message, "error");
+  }
+}
+
+function importFromFile(col) {
+  const fileInput = document.getElementById("importFile");
+  const file = fileInput.files[0];
+  if (!file) return toast("Choose a CSV file first", "error");
+
+  const reader = new FileReader();
+  reader.onload = () => applyImport(col, reader.result);
+  reader.onerror = () => toast("Failed to read file", "error");
+  reader.readAsText(file);
+}
+
+function applyImport(col, csvText) {
+  const rows = parseCSV(csvText);
+  if (rows.length < 2) return toast("CSV has no data rows", "error");
+
+  const objects = mapRowsToObjects(rows);
+  if (objects.length === 0) return toast("No rows parsed", "error");
+
+  const existing = data[col.id] || [];
+  if (existing.length > 0 && !confirm(`Replace ${existing.length} existing rows with ${objects.length} imported rows?`)) return;
+
+  data[col.id] = objects;
+  dirty = true;
+
+  const columns = col.type === "tcm" ? TCM_COLUMNS : ECM_COLUMNS;
+  buildTable(columns, objects);
+
+  toast(`Imported ${objects.length} rows`, "success");
+}
+
+// ============================================================
+//  CSV PARSER (copied from index.html)
+// ============================================================
+function parseCSV(csvText) {
+  const rows = [];
+  let current = [];
+  let cell = "";
+  let inQuotes = false;
+  const text = csvText.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') { cell += '"'; i++; }
+        else { inQuotes = false; }
+      } else {
+        cell += ch;
+      }
+    } else {
+      if (ch === '"') { inQuotes = true; }
+      else if (ch === ',') { current.push(cell); cell = ""; }
+      else if (ch === '\n') { current.push(cell); rows.push(current); current = []; cell = ""; }
+      else { cell += ch; }
+    }
+  }
+  if (cell || current.length) { current.push(cell); rows.push(current); }
+  return rows.filter(r => r.some(c => c.trim()));
+}
+
+function normalizeHeader(h) {
+  return h.replace(/\uFEFF/g, "").trim().toLowerCase().replace(/\s+/g, "_");
+}
+
+function mapRowsToObjects(rows) {
+  if (rows.length < 2) return [];
+  const headers = rows[0].map(normalizeHeader);
+  return rows.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = (row[i] || "").trim(); });
+    return obj;
+  });
+}
+
+// ============================================================
+//  SAVE / DOWNLOAD / LOGOUT
+// ============================================================
+document.getElementById("btnSaveAll").onclick = async () => {
+  const btn = document.getElementById("btnSaveAll");
+  btn.disabled = true;
+  btn.textContent = "Saving...";
+  try {
+    await saveData();
+    toast("Saved successfully!", "success");
+  } catch (e) {
+    // toast already shown in saveData
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Save All";
+  }
+};
+
+document.getElementById("btnDownload").onclick = () => {
+  syncEditorToData();
+  const blob = new Blob([JSON.stringify({ collections, data }, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `asap-tunes-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast("Downloaded backup", "success");
+};
+
+document.getElementById("btnLogout").onclick = () => {
+  AUTH_TOKEN = "";
+  sessionStorage.removeItem("asap_admin_pw");
+  collections = [];
+  data = {};
+  activeColId = null;
+  dirty = false;
+  document.getElementById("adminSection").style.display = "none";
+  document.getElementById("loginSection").style.display = "";
+  document.getElementById("pwInput").value = "";
+  document.getElementById("loginError").style.display = "none";
+};
+
+// Warn before leaving with unsaved changes
+window.addEventListener("beforeunload", e => {
+  if (dirty) { e.preventDefault(); e.returnValue = ""; }
+});
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function toBool(v) {
+  if (typeof v === "boolean") return v;
+  const s = String(v).trim().toLowerCase();
+  return s === "true" || s === "yes" || s === "1";
+}
+
+function esc(s) {
+  const d = document.createElement("div");
+  d.textContent = s || "";
+  return d.innerHTML;
+}
+
+function toast(msg, type) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.className = "toast toast-" + (type || "success") + " show";
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove("show"), 3000);
+}
+</script>
+</body>
+</html>
